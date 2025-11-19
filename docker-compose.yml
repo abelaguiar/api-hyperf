@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  hyperf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hyperf-app
+    ports:
+      - "9501:9501"
+    volumes:
+      - ./app:/opt/www/app
+      - ./runtime:/opt/www/runtime
+    environment:
+      - APP_ENV=dev
+      - SCAN_CACHEABLE=false
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_USERNAME=admin
+      - MONGODB_PASSWORD=admin123
+      - MONGODB_DATABASE=hyperf_db
+    depends_on:
+      - mongodb
+    networks:
+      - hyperf-network
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7.0
+    container_name: hyperf-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+      - MONGO_INITDB_DATABASE=hyperf_db
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/mongodb/init:/docker-entrypoint-initdb.d
+    networks:
+      - hyperf-network
+    restart: unless-stopped
+
+networks:
+  hyperf-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
