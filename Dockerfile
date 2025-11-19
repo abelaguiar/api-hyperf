@@ -14,14 +14,14 @@ RUN apk add --no-cache \
     php81-pear \
     pkgconfig
 
-# Instalar extensão MongoDB via PECL
-RUN pecl install mongodb \
+# Instalar extensão MongoDB via PECL (versão específica compatível)
+RUN pecl install mongodb-1.19.4 \
     && echo "extension=mongodb.so" > /etc/php81/conf.d/50_mongodb.ini
 
 # Copiar o código da aplicação
 COPY . .
 
-# Instalar dependências do Composer
+# Instalar dependências do Composer (sem lock file, vai gerar novo)
 RUN composer install --no-dev --prefer-dist --ignore-platform-req=ext-mongodb \
     && composer dump-autoload --optimize
 
